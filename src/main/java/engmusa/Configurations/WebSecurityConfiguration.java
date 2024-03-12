@@ -32,9 +32,9 @@ public class WebSecurityConfiguration {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/signup").permitAll())
+                        .requestMatchers("/api/**").permitAll())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/signin").authenticated())
+                        .requestMatchers("/auth/signin").authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
