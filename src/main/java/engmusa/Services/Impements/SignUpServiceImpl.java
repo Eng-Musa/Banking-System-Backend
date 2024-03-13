@@ -2,6 +2,8 @@ package engmusa.Services.Impements;
 
 import engmusa.DTOs.SignUpRequest;
 import engmusa.DTOs.UserDTO;
+import engmusa.Email.EmailDetails;
+import engmusa.Email.EmailService;
 import engmusa.Models.ConfirmationToken;
 import engmusa.Models.User;
 import engmusa.Repository.UserRepository;
@@ -24,13 +26,21 @@ public class SignUpServiceImpl implements SignUpService {
     private UserRepository userRepository;
     @Autowired
     private ConfirmationTokenService tokenService;
+    @Autowired
+    private EmailService emailService;
     @Override
     public UserDTO createUser(SignUpRequest signUpRequest) {
         try {
+
+            User existingUser = userRepository.findFirstByEmail(signUpRequest.getEmail());
+            if(existingUser != null){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with "
+                        +signUpRequest.getEmail().toLowerCase()+ " already exists");
+            }
             User user = new User();
             user.setFirstName(signUpRequest.getFirstName());
             user.setLastName(signUpRequest.getLastName());
-            user.setEmail(signUpRequest.getEmail());
+            user.setEmail(signUpRequest.getEmail().toLowerCase());
             user.setIdNumber(signUpRequest.getIdNumber());
             user.setDateOfBirth(signUpRequest.getDateOfBirth());
             user.setDateOfCreation(LocalDateTime.now());
@@ -51,10 +61,16 @@ public class SignUpServiceImpl implements SignUpService {
             ConfirmationToken confirmationToken = new ConfirmationToken(
                     token,
                     LocalDateTime.now(),
-                    LocalDateTime.now().plusMinutes(1),
+                    LocalDateTime.now().plusMinutes(2),
                     user
             );
             tokenService.saveConfirmationToken(confirmationToken);
+
+            EmailDetails emailDetails = new EmailDetails();
+            emailDetails.setEmail(createdUser.getEmail());
+            emailDetails.setName(createdUser.getFirstName());
+            emailDetails.setToken(token);
+            emailService.sendEmail(emailDetails);
 
             return userDTO;
         }catch (ConstraintViolationException e) {
