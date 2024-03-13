@@ -2,21 +2,28 @@ package engmusa.Services.Impements;
 
 import engmusa.DTOs.SignUpRequest;
 import engmusa.DTOs.UserDTO;
+import engmusa.Models.ConfirmationToken;
 import engmusa.Models.User;
 import engmusa.Repository.UserRepository;
+import engmusa.Services.ConfirmationTokenService;
 import engmusa.Services.SignUpService;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 public class SignUpServiceImpl implements SignUpService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ConfirmationTokenService tokenService;
     @Override
     public UserDTO createUser(SignUpRequest signUpRequest) {
         try {
@@ -39,9 +46,41 @@ public class SignUpServiceImpl implements SignUpService {
             userDTO.setDateOfBirth(createdUser.getDateOfBirth());
             userDTO.setPassword(createdUser.getPassword());
             userDTO.setDateOfCreation(createdUser.getDateOfCreation());
+
+            String token = UUID.randomUUID().toString();
+            ConfirmationToken confirmationToken = new ConfirmationToken(
+                    token,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(1),
+                    user
+            );
+            tokenService.saveConfirmationToken(confirmationToken);
+
             return userDTO;
         }catch (ConstraintViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public String confirmToken(String token) {
+        try{
+            ConfirmationToken confirmationToken = tokenService.getToken(token)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
+            LocalDateTime expiresAt = confirmationToken.getExpiresAt();
+            if(expiresAt.isBefore(LocalDateTime.now())){
+                return "Token expired!";
+            }else{
+                User user = confirmationToken.getUser();
+                user.setEnabled(true);
+                userRepository.save(user);
+                return "Account confirmed successfully! \n Proceed to login.";
+            }
+        }catch (IllegalArgumentException e){
+            return "Invalid token!";
+        }catch (Exception e){
+            return "Failed to confirm account: " + e.getMessage();
         }
     }
 }

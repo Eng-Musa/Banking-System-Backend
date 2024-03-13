@@ -8,5 +8,6 @@ import org.springframework.stereotype.Service;
 
 public interface SignUpService {
     UserDTO createUser(SignUpRequest signUpRequest);
+    String confirmToken(String token);
 
 }

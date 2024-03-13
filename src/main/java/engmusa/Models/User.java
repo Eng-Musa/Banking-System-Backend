@@ -23,4 +23,5 @@ public class User {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dateOfCreation;
     private String password;
+    private Boolean enabled = false;
 }
