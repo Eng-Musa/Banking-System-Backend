@@ -90,15 +90,17 @@ public class SignUpServiceImpl implements SignUpService {
                 return "Token expired!";
             }else{
                 User user = confirmationToken.getUser();
+                if(user.getEnabled()){
+                    return "Account already confirmed, kindly login";
+                }
                 user.setEnabled(true);
-                User savedUser = userRepository.save(user); // Save user to the database
+                userRepository.save(user);
 
                 EmailDetails emailDetails = new EmailDetails();
                 emailDetails.setEmail(user.getEmail());
                 emailDetails.setName(user.getFirstName());
                 emailDetails.setAccountNumber(user.getAccountNumber());
                 emailService.sendSuccessfulCreationEmail(emailDetails);
-                System.out.println("Test+++ Name: " + emailDetails.getName() + ", Email: " + emailDetails.getEmail() + ", Account Number: " + emailDetails.getAccountNumber());
                 return "Account confirmed successfully! \n Proceed to login.";
             }
         }catch (IllegalArgumentException e){
