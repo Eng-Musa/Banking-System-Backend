@@ -1,5 +1,6 @@
 package engmusa.Email;
 
 public interface EmailService {
-    String sendEmail(EmailDetails emailDetails);
+    String sendConfirmationEmail(EmailDetails emailDetails);
+    String sendSuccessfulCreationEmail(EmailDetails emailDetails);
 }

@@ -71,7 +71,7 @@ public class SignUpServiceImpl implements SignUpService {
             emailDetails.setEmail(createdUser.getEmail());
             emailDetails.setName(createdUser.getFirstName());
             emailDetails.setToken(token);
-            emailService.sendEmail(emailDetails);
+            emailService.sendConfirmationEmail(emailDetails);
 
             return userDTO;
         }catch (ConstraintViolationException e) {
@@ -91,7 +91,14 @@ public class SignUpServiceImpl implements SignUpService {
             }else{
                 User user = confirmationToken.getUser();
                 user.setEnabled(true);
-                userRepository.save(user);
+                User savedUser = userRepository.save(user); // Save user to the database
+
+                EmailDetails emailDetails = new EmailDetails();
+                emailDetails.setEmail(user.getEmail());
+                emailDetails.setName(user.getFirstName());
+                emailDetails.setAccountNumber(user.getAccountNumber());
+                emailService.sendSuccessfulCreationEmail(emailDetails);
+                System.out.println("Test+++ Name: " + emailDetails.getName() + ", Email: " + emailDetails.getEmail() + ", Account Number: " + emailDetails.getAccountNumber());
                 return "Account confirmed successfully! \n Proceed to login.";
             }
         }catch (IllegalArgumentException e){
