@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Data
 public class UserDTO {
     private Long id;
@@ -17,4 +19,5 @@ public class UserDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dateOfCreation;
     private String password;
+    private AtomicInteger accountNumber;
 }

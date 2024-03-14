@@ -56,6 +56,7 @@ public class SignUpServiceImpl implements SignUpService {
             userDTO.setDateOfBirth(createdUser.getDateOfBirth());
             userDTO.setPassword(createdUser.getPassword());
             userDTO.setDateOfCreation(createdUser.getDateOfCreation());
+            userDTO.setAccountNumber(createdUser.getAccountNumber());
 
             String token = UUID.randomUUID().toString();
             ConfirmationToken confirmationToken = new ConfirmationToken(
