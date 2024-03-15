@@ -116,7 +116,7 @@ public class SignUpServiceImpl implements SignUpService {
         ConfirmationToken confirmationToken = new ConfirmationToken(
                 token,
                 LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(1),
+                LocalDateTime.now().plusMinutes(5),
                 user
         );
         tokenService.saveConfirmationToken(confirmationToken);

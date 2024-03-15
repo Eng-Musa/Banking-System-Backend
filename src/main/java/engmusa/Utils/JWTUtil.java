@@ -21,7 +21,7 @@ public class JWTUtil {
     public String generateToken(UserDetails userDetails){
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*1000*24))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*10))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
