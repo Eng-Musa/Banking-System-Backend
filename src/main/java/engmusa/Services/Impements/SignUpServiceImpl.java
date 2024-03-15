@@ -58,19 +58,10 @@ public class SignUpServiceImpl implements SignUpService {
             userDTO.setDateOfCreation(createdUser.getDateOfCreation());
             userDTO.setAccountNumber(createdUser.getAccountNumber());
 
-            String token = UUID.randomUUID().toString();
-            ConfirmationToken confirmationToken = new ConfirmationToken(
-                    token,
-                    LocalDateTime.now(),
-                    LocalDateTime.now().plusMinutes(2),
-                    user
-            );
-            tokenService.saveConfirmationToken(confirmationToken);
-
             EmailDetails emailDetails = new EmailDetails();
             emailDetails.setEmail(createdUser.getEmail());
             emailDetails.setName(createdUser.getFirstName());
-            emailDetails.setToken(token);
+            emailDetails.setToken(tokenGeneration(user));
             emailService.sendConfirmationEmail(emailDetails);
 
             return userDTO;
@@ -87,13 +78,22 @@ public class SignUpServiceImpl implements SignUpService {
                     .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
             LocalDateTime expiresAt = confirmationToken.getExpiresAt();
             if(expiresAt.isBefore(LocalDateTime.now())){
-                return "Token expired!";
+                User user = confirmationToken.getUser();
+                EmailDetails emailDetails = new EmailDetails();
+                emailDetails.setEmail(user.getEmail());
+                emailDetails.setName(emailDetails.getName());
+                emailDetails.setToken(tokenGeneration(user));
+                System.out.println("Test++++" +emailDetails.getToken());
+                emailService.sendConfirmationEmail(emailDetails);
+                return "Token expired! Recheck email for new token";
+
             }else{
                 User user = confirmationToken.getUser();
                 if(user.getEnabled()){
                     return "Account already confirmed, kindly login";
                 }
                 user.setEnabled(true);
+                confirmationToken.setConfirmedAt(LocalDateTime.now());
                 userRepository.save(user);
 
                 EmailDetails emailDetails = new EmailDetails();
@@ -108,5 +108,19 @@ public class SignUpServiceImpl implements SignUpService {
         }catch (Exception e){
             return "Failed to confirm account: " + e.getMessage();
         }
+    }
+
+    @Override
+    public String tokenGeneration(User user) {
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+                token,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(1),
+                user
+        );
+        tokenService.saveConfirmationToken(confirmationToken);
+
+        return token;
     }
 }

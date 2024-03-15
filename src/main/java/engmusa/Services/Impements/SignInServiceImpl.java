@@ -23,7 +23,7 @@ public class SignInServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Username not found");
         }
         if(!user.getEnabled()){
-            throw new DisabledException("Account not verified");
+            throw new DisabledException("Account not verified, kindly check email for verification link");
         }
         return new org.springframework.security.core.userdetails.User(user.getEmail(),
                 user.getPassword(), new ArrayList<>());

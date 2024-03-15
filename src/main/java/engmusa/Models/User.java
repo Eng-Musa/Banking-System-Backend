@@ -29,7 +29,9 @@ public class User {
     private Boolean enabled = false;
     @Column(unique = true, updatable = false)
     private AtomicInteger accountNumber = new AtomicInteger(3650000);
+    private float accountBalance = 0;
     public User() {
+
         this.accountNumber = new AtomicInteger(accountNumber.incrementAndGet());
     }
 }
