@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Table(name = "users")
 @Entity
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -28,10 +27,7 @@ public class User {
     private String password;
     private Boolean enabled = false;
     @Column(unique = true, updatable = false)
-    private AtomicInteger accountNumber = new AtomicInteger(3650000);
+    private Integer accountNumber;
     private float accountBalance = 0;
-    public User() {
 
-        this.accountNumber = new AtomicInteger(accountNumber.incrementAndGet());
-    }
 }

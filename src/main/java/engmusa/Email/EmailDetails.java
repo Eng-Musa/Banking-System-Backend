@@ -11,5 +11,5 @@ public class EmailDetails {
     private String email;
     private String name;
     private String token;
-    private AtomicInteger accountNumber;
+    private Integer accountNumber;
 }

@@ -2,13 +2,13 @@ package engmusa.Repository;
 
 import engmusa.Models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findFirstByEmail(String email);
-
-    User findFirstByAccountNumber(AtomicInteger accountNumber);
+    User findFirstByAccountNumber(Integer accountNumber);
+    @Query("SELECT MAX(u.accountNumber) FROM User u")
+    Integer findMaxAccountNumber();
 }

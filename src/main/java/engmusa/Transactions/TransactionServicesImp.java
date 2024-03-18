@@ -4,8 +4,6 @@ import engmusa.Models.User;
 import engmusa.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class TransactionServicesImp implements TransactionServices{
     @Autowired
@@ -42,9 +40,7 @@ public class TransactionServicesImp implements TransactionServices{
             sendingUser.setAccountBalance(newBalance);
             userRepository.save(sendingUser);
 
-            AtomicInteger atomicAccNumber = new AtomicInteger(receiverAccNumber);
-
-            User receivingUser = userRepository.findFirstByAccountNumber(atomicAccNumber);
+            User receivingUser = userRepository.findFirstByAccountNumber(receiverAccNumber);
             if(receivingUser != null){
                 float balance1 = receivingUser.getAccountBalance();
                 float newBalance1 = balance1 + sendAmount;

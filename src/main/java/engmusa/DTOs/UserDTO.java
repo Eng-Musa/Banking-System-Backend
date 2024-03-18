@@ -19,5 +19,5 @@ public class UserDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dateOfCreation;
     private String password;
-    private AtomicInteger accountNumber;
+    private Integer accountNumber;
 }

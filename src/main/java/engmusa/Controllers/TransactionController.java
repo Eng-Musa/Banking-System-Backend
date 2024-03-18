@@ -38,7 +38,7 @@ public class TransactionController {
     }
 
     @PutMapping("/send")
-    public ResponseEntity<String> send(@RequestParam("receiverAccNumber")Integer receiverAccNumber,
+    public ResponseEntity<String> send(@RequestParam("receiverAccNumber") Integer receiverAccNumber,
                                        @RequestParam("amount") float sendAmount){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(principal instanceof UserDetails){

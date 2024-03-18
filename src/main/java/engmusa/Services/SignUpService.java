@@ -11,4 +11,5 @@ public interface SignUpService {
     UserDTO createUser(SignUpRequest signUpRequest);
     String confirmToken(String token);
     String tokenGeneration(User user);
+    Integer accountNoGenerator();
 }

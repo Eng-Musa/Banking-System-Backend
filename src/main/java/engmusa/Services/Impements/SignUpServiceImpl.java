@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,6 +46,7 @@ public class SignUpServiceImpl implements SignUpService {
             user.setDateOfBirth(signUpRequest.getDateOfBirth());
             user.setDateOfCreation(LocalDateTime.now());
             user.setPassword(new BCryptPasswordEncoder().encode(signUpRequest.getPassword()));
+            user.setAccountNumber(accountNoGenerator());
             User createdUser = userRepository.save(user);
 
             UserDTO userDTO = new UserDTO();
@@ -123,4 +125,20 @@ public class SignUpServiceImpl implements SignUpService {
 
         return token;
     }
+
+    @Override
+    public Integer accountNoGenerator() {
+        Optional<User> user = Optional.ofNullable(userRepository.findFirstByAccountNumber(365000));
+        if (user.isEmpty()) {
+            return 365000;
+        } else {
+            Integer maxAccountNumber = userRepository.findMaxAccountNumber();
+            if (maxAccountNumber != null) {
+                return maxAccountNumber + 1;
+            } else {
+                return 365000;
+            }
+        }
+    }
+
 }
