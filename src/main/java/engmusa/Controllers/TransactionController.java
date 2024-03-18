@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 @RestController
 @RequestMapping("/auth")
 public class TransactionController {
@@ -29,8 +31,21 @@ public class TransactionController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(principal instanceof UserDetails){
             String email = ((UserDetails) principal).getUsername();
-            Float  newBalance = transactionServices.Deposit(email, depositAmount);
+            float  newBalance = transactionServices.Deposit(email, depositAmount);
             return ResponseEntity.ok("The new balance after deposit is: " + newBalance);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/send")
+    public ResponseEntity<String> send(@RequestParam("receiverAccNumber")Integer receiverAccNumber,
+                                       @RequestParam("amount") float sendAmount){
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principal instanceof UserDetails){
+            String email = ((UserDetails) principal).getUsername();
+            float newBalance = transactionServices.send(email, sendAmount, receiverAccNumber);
+            return ResponseEntity.ok("You have successfully transferred " +sendAmount+ " to "+receiverAccNumber+
+                    " The new balance after sending is: " + newBalance);
         }
         return ResponseEntity.notFound().build();
     }
