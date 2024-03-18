@@ -13,6 +13,9 @@ public class TransactionServicesImp implements TransactionServices{
     public Float getBalance(String email) {
         User fetchedUser = userRepository.findFirstByEmail(email);
         if(fetchedUser != null){
+            fetchedUser.setAccountBalance(fetchedUser.getAccountBalance()
+                    -TransactionCosts.CHECKING_BALANCE.getCost());
+            userRepository.save(fetchedUser);
             return fetchedUser.getAccountBalance();
         }else {
             throw new RuntimeException("Invalid user");
@@ -36,7 +39,10 @@ public class TransactionServicesImp implements TransactionServices{
         User sendingUser = userRepository.findFirstByEmail(email);
         if(sendingUser != null){
             float balance = sendingUser.getAccountBalance();
-            float newBalance = balance - sendAmount;
+            float newBalance = balance - sendAmount- TransactionCosts.SENDING_COST.getCost();
+            if(balance < sendAmount){
+                throw new RuntimeException("Insufficient funds to complete the transaction");
+            }
             sendingUser.setAccountBalance(newBalance);
             userRepository.save(sendingUser);
 

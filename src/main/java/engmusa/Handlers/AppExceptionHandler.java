@@ -27,4 +27,9 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(exception.getReason(), exception.getStatusCode());
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }

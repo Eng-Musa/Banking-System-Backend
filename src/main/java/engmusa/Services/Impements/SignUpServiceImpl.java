@@ -125,7 +125,6 @@ public class SignUpServiceImpl implements SignUpService {
 
         return token;
     }
-
     @Override
     public Integer accountNoGenerator() {
         Optional<User> user = Optional.ofNullable(userRepository.findFirstByAccountNumber(365000));

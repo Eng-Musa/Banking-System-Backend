@@ -1,5 +1,6 @@
 package engmusa.Controllers;
 
+import engmusa.Transactions.TransactionCosts;
 import engmusa.Transactions.TransactionServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,8 @@ public class TransactionController {
         if(principal instanceof UserDetails){
             String email = ((UserDetails) principal).getUsername();
             Float balance = transactionServices.getBalance(email);
-            return ResponseEntity.ok("The balance is: " + balance);
+            return ResponseEntity.ok("The balance is: " + balance + ". Service charge: "
+                    + TransactionCosts.CHECKING_BALANCE.getCost());
         }
         return ResponseEntity.notFound().build();
     }
@@ -45,7 +47,8 @@ public class TransactionController {
             String email = ((UserDetails) principal).getUsername();
             float newBalance = transactionServices.send(email, sendAmount, receiverAccNumber);
             return ResponseEntity.ok("You have successfully transferred " +sendAmount+ " to "+receiverAccNumber+
-                    " The new balance after sending is: " + newBalance);
+                    " The new balance after sending is: " + newBalance + ". Service fee: "
+                    +TransactionCosts.SENDING_COST.getCost());
         }
         return ResponseEntity.notFound().build();
     }
