@@ -1,20 +1,27 @@
-package engmusa.Transactions;
+package engmusa.Transactions.Implements;
 
+import engmusa.Models.Statement;
 import engmusa.Models.User;
 import engmusa.Repository.UserRepository;
+import engmusa.Transactions.Enum.TransactionCosts;
+import engmusa.Transactions.Enum.TransactionType;
+import engmusa.Transactions.StatementService;
+import engmusa.Transactions.TransactionServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 @Service
-public class TransactionServicesImp implements TransactionServices{
+public class TransactionServicesImp implements TransactionServices {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private StatementService statementService;
 
     @Override
     public Float getBalance(String email) {
         User fetchedUser = userRepository.findFirstByEmail(email);
         if(fetchedUser != null){
             fetchedUser.setAccountBalance(fetchedUser.getAccountBalance()
-                    -TransactionCosts.CHECKING_BALANCE.getCost());
+                    - TransactionCosts.CHECKING_BALANCE.getCost());
             userRepository.save(fetchedUser);
             return fetchedUser.getAccountBalance();
         }else {
@@ -46,12 +53,32 @@ public class TransactionServicesImp implements TransactionServices{
             sendingUser.setAccountBalance(newBalance);
             userRepository.save(sendingUser);
 
+            Statement sendStatement = statementService.generateStatement(
+                    sendingUser,
+                    sendAmount,
+                    balance,
+                    newBalance,
+                    TransactionType.SEND);
+            statementService.saveStatement(sendStatement);
+
             User receivingUser = userRepository.findFirstByAccountNumber(receiverAccNumber);
+            if(sendingUser == receivingUser){
+                throw new RuntimeException("Unable to complete transaction, you're trying to transfer funds to self!");
+            }
             if(receivingUser != null){
                 float balance1 = receivingUser.getAccountBalance();
                 float newBalance1 = balance1 + sendAmount;
                 receivingUser.setAccountBalance(newBalance1);
                 userRepository.save(receivingUser);
+
+                Statement receiveStatement = statementService.generateStatement(
+                        receivingUser,
+                        sendAmount,
+                        balance1,
+                        newBalance1,
+                        TransactionType.RECEIVE);
+                statementService.saveStatement(receiveStatement);
+
                 return newBalance;
             }else{
                 throw new RuntimeException("Invalid receiver account number");
