@@ -78,40 +78,41 @@ public class SignUpServiceImpl implements SignUpService {
         try{
             ConfirmationToken confirmationToken = tokenService.getToken(token)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
+
+            User user = confirmationToken.getUser();
+
+            if(user.getEnabled()){
+                return "Account already confirmed, kindly login";
+            }
+
             LocalDateTime expiresAt = confirmationToken.getExpiresAt();
             if(expiresAt.isBefore(LocalDateTime.now())){
-                User user = confirmationToken.getUser();
-                EmailDetails emailDetails = new EmailDetails();
-                emailDetails.setEmail(user.getEmail());
-                emailDetails.setName(emailDetails.getName());
-                emailDetails.setToken(tokenGeneration(user));
-                System.out.println("Test++++" +emailDetails.getToken());
-                emailService.sendConfirmationEmail(emailDetails);
-                return "Token expired! Recheck email for new token";
-
-            }else{
-                User user = confirmationToken.getUser();
-                if(user.getEnabled()){
-                    return "Account already confirmed, kindly login";
-                }
-                user.setEnabled(true);
-                confirmationToken.setConfirmedAt(LocalDateTime.now());
-                userRepository.save(user);
-
                 EmailDetails emailDetails = new EmailDetails();
                 emailDetails.setEmail(user.getEmail());
                 emailDetails.setName(user.getFirstName());
-                emailDetails.setAccountNumber(user.getAccountNumber());
-                emailService.sendSuccessfulCreationEmail(emailDetails);
-                return "Account confirmed successfully! \n Proceed to login.";
+                emailDetails.setToken(tokenGeneration(user));
+                emailService.sendConfirmationEmail(emailDetails);
+                return "Token expired! Recheck email for new token";
             }
+
+            user.setEnabled(true);
+            confirmationToken.setConfirmedAt(LocalDateTime.now());
+            userRepository.save(user);
+
+
+            EmailDetails emailDetails = new EmailDetails();
+            emailDetails.setEmail(user.getEmail());
+            emailDetails.setName(user.getFirstName());
+            emailDetails.setAccountNumber(user.getAccountNumber());
+            emailService.sendSuccessfulCreationEmail(emailDetails);
+            return "Account confirmed successfully! \n Proceed to login.";
         }catch (IllegalArgumentException e){
             return "Invalid token!";
         }catch (Exception e){
             return "Failed to confirm account: " + e.getMessage();
         }
     }
-
+    
     @Override
     public String tokenGeneration(User user) {
         String token = UUID.randomUUID().toString();
