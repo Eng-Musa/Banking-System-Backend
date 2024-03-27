@@ -21,14 +21,13 @@ public class EmailDetailsImp implements EmailService {
             mailMessage.setTo(emailDetails.getEmail());
             mailMessage.setSubject("Customer");
 
-            StringBuilder emailText = new StringBuilder();
-            emailText.append("Dear ").append(emailDetails.getName().toUpperCase())
-                    .append(", \n\n");
-            emailText.append("Thank you for registering to our system.\n");
-            emailText.append(emailDetails.getToken()).append("\n");
-            emailText.append("Confirmation token expires in 10 minutes, kindly verify your account. \n\n");
-            emailText.append("~Musa");
-            mailMessage.setText(emailText.toString());
+            String emailText = "Dear " + emailDetails.getName().toUpperCase() +
+                    ", \n\n" +
+                    "Thank you for registering to our system.\n" +
+                    emailDetails.getToken() + "\n" +
+                    "Confirmation token expires in 10 minutes, kindly verify your account. \n\n" +
+                    "~Musa";
+            mailMessage.setText(emailText);
 
             mailSender.send(mailMessage);
             System.out.println(mailMessage);

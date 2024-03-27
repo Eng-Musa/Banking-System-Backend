@@ -64,7 +64,7 @@ public class SignUpServiceImpl implements SignUpService {
             emailDetails.setEmail(createdUser.getEmail());
             emailDetails.setName(createdUser.getFirstName());
             emailDetails.setToken(tokenGeneration(user));
-            emailService.sendConfirmationEmail(emailDetails);
+            //emailService.sendConfirmationEmail(emailDetails);
 
             return userDTO;
         }catch (ConstraintViolationException e) {
